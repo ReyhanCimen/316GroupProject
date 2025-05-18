@@ -60,25 +60,22 @@ public class EnemyAI : MonoBehaviour
         {
             agent.ResetPath();
             Debug.Log(gameObject.name + " reached player, stopping.");
-        }
-        if (distance > stopDistance)
-{
-    agent.SetDestination(player.position);
-}
-else
-{
-    agent.ResetPath();
 
-    if (Time.time >= nextAttackTime)
-    {
-        PlayerHealth ph = player.GetComponent<PlayerHealth>();
-        if (ph != null)
-        {
-            ph.TakeDamage(damageAmount);
-            nextAttackTime = Time.time + damageRate;
+            // Düşman oyuncuya ulaştığında hasar verme
+            if (Time.time >= nextAttackTime)
+            {
+                PlayerHealth ph = player.GetComponent<PlayerHealth>();
+                if (ph != null)
+                {
+                    Debug.Log(gameObject.name + " ATTACKING player, damage: " + damageAmount);
+                    ph.TakeDamage(damageAmount);
+                    nextAttackTime = Time.time + damageRate;
+                }
+                else
+                {
+                    Debug.LogError("PlayerHealth component not found on player!");
+                }
+            }
         }
-    }
-}
-
     }
 }

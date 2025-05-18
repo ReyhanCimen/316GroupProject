@@ -46,23 +46,23 @@ public class Gun : MonoBehaviour
         currentAmmo--;
         Debug.Log("Ateş! Kalan mermi: " + currentAmmo);
 
+        // Kameradan ileri doğru ışın gönder (nişangah ile aynı yöne)
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, range))
-{
-    Debug.Log("Vurulan nesne: " + hit.collider.name);
-
-    if (hit.collider.CompareTag("Enemy"))
-    {
-        Enemy enemy = hit.collider.GetComponent<Enemy>();
-        if (enemy != null)
         {
-            enemy.TakeDamage(25); // Her atışta 25 hasar
-        }
-    }
-}
+            Debug.Log("Vurulan nesne: " + hit.collider.name);
 
+            if (hit.collider.CompareTag("Enemy"))
+            {
+                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(25); // Her atışta 25 hasar
+                }
+            }
+        }
     }
 
     void Reload()
