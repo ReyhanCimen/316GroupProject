@@ -12,12 +12,21 @@ public class Gun : MonoBehaviour
     public Transform muzzlePoint; // Ucu
     public Camera playerCamera;
 
-    private int currentAmmo;
+    // Mermi değişikliği için event
+    public delegate void AmmoChangedHandler(int currentAmmo, int totalAmmo);
+    public event AmmoChangedHandler onAmmoChanged;
+
+    // Public değişkene çevirdik (UI erişimi için)
+    public int currentAmmo { get; private set; }
     private float nextTimeToFire = 0f;
 
     void Start()
     {
         currentAmmo = magazineSize;
+
+        // UI güncellemesi için event'i tetikle
+        if (onAmmoChanged != null)
+            onAmmoChanged(currentAmmo, totalAmmo);
     }
 
     void Update()
@@ -32,6 +41,7 @@ public class Gun : MonoBehaviour
             else
             {
                 Debug.Log("Şarjör boş! R ile doldur.");
+                // Silah boş sesini çalabilirsiniz
             }
         }
 
@@ -45,6 +55,10 @@ public class Gun : MonoBehaviour
     {
         currentAmmo--;
         Debug.Log("Ateş! Kalan mermi: " + currentAmmo);
+
+        // Event'i tetikle (UI güncellemesi için)
+        if (onAmmoChanged != null)
+            onAmmoChanged(currentAmmo, totalAmmo);
 
         // Kameradan ileri doğru ışın gönder (nişangah ile aynı yöne)
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
@@ -80,5 +94,9 @@ public class Gun : MonoBehaviour
         currentAmmo += ammoToReload;
 
         Debug.Log("Şarjör değiştirildi. Kalan toplam mermi: " + totalAmmo);
+
+        // Event'i tetikle (UI güncellemesi için)
+        if (onAmmoChanged != null)
+            onAmmoChanged(currentAmmo, totalAmmo);
     }
 }
