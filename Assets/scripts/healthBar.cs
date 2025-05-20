@@ -83,28 +83,38 @@ public class healthBar : MonoBehaviour
         }
     }
 
-    // Public metod ekleyelim ki dýþarýdan çaðrýlabilsin
     public void takeDamage(int damage)
     {
+        // Eski saðlýk deðerini loglayalým
+        float oldHealth = health;
+
+        // Yeni saðlýk deðerini hesapla
         health -= damage;
         health = Mathf.Clamp(health, 0, maxHealth); // Saðlýk deðerini 0 ile maxHealth arasýnda tut
+
+        Debug.Log(gameObject.name + " health bar damage: " + damage +
+                  ", Old: " + oldHealth + ", New: " + health);
+
+        // Slider deðerlerini hemen güncelle
+        if (healthSlider != null)
+        {
+            healthSlider.value = health;
+            Debug.Log("Health slider deðeri güncellendi: " + health);
+        }
+        else
+        {
+            Debug.LogError(gameObject.name + ": healthSlider referansý bulunamadý!");
+        }
 
         // Owner tipine göre farklý davranýþ
         if (ownerType == OwnerType.Player)
         {
-            // Ekrana flash effect eklenebilir
-            // Oyuncu hasar alýnca ses çalabilir
             Debug.Log("Player took damage: " + damage + ", Kalan saðlýk: " + health);
         }
         else // Enemy
         {
-            // Düþman hasar alýnca farklý bir efekt
             Debug.Log("Enemy took damage: " + damage + ", Kalan saðlýk: " + health);
         }
-
-        // Slider deðerlerini hemen güncelle
-        if (healthSlider != null)
-            healthSlider.value = health;
     }
 
     // Saðlýk deðerini sýfýrlama metodu

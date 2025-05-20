@@ -12,47 +12,79 @@ public class PlayerHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
 
-        // Health Bar referansýný bul
+        // Health Bar referansýný bul - Daha kapsamlý bir arama yapalým
         FindHealthBar();
 
-        // Health Bar'ý baþlangýç deðerine ayarla
-        if (healthBarUI != null)
+        // Debug için bir kontrol ekleyelim
+        if (healthBarUI == null)
         {
-            healthBarUI.ownerType = healthBar.OwnerType.Player;
-            healthBarUI.maxHealth = maxHealth;
-            healthBarUI.health = maxHealth;
+            Debug.LogError("PlayerHealth: Health Bar referansý bulunamadý! Player UI oluþturduðunuzdan emin olun.");
         }
         else
         {
-            Debug.LogError("Player Health Bar bulunamadý!");
+            // Health Bar'ý baþlangýç deðerine ayarla
+            healthBarUI.ownerType = healthBar.OwnerType.Player;
+            healthBarUI.maxHealth = maxHealth;
+            healthBarUI.health = maxHealth;
+
+            // Slider deðerlerini manuel olarak ayarlayalým
+            if (healthBarUI.healthSlider != null)
+            {
+                healthBarUI.healthSlider.maxValue = maxHealth;
+                healthBarUI.healthSlider.value = maxHealth;
+            }
+
+            if (healthBarUI.easeHealthSlider != null)
+            {
+                healthBarUI.easeHealthSlider.maxValue = maxHealth;
+                healthBarUI.easeHealthSlider.value = maxHealth;
+            }
+
+            Debug.Log("Player Health Bar baþarýyla baþlatýldý.");
         }
     }
 
     void FindHealthBar()
     {
-        // Sadece PlayerUI tag'ine sahip health bar'ý bulma
+        // 1. Önce PlayerUI tag'ine sahip olanlar arasýnda ara
         GameObject[] bars = GameObject.FindGameObjectsWithTag("PlayerUI");
         foreach (GameObject bar in bars)
         {
-            healthBar hb = bar.GetComponentInChildren<healthBar>();
-            if (hb != null && hb.ownerType == healthBar.OwnerType.Player)
+            healthBar hb = bar.GetComponentInChildren<healthBar>(true); // inactive objeleri de içerecek þekilde
+            if (hb != null)
             {
                 healthBarUI = hb;
-                Debug.Log("Player Health Bar bulundu!");
-                break;
+                Debug.Log("Player Health Bar 'PlayerUI' tag ile bulundu!");
+                return; // Bulunca çýk
             }
         }
 
-        // Eðer tag ile bulunamadýysa, genel arama yap
-        if (healthBarUI == null)
+        // 2. Canvas içinde ara
+        Canvas[] canvases = FindObjectsOfType<Canvas>();
+        foreach (Canvas c in canvases)
         {
-            healthBarUI = FindObjectOfType<healthBar>();
-            if (healthBarUI != null)
+            healthBar hb = c.GetComponentInChildren<healthBar>(true);
+            if (hb != null && hb.ownerType == healthBar.OwnerType.Player)
             {
-                healthBarUI.ownerType = healthBar.OwnerType.Player;
-                Debug.Log("Player Health Bar genel arama ile bulundu!");
+                healthBarUI = hb;
+                Debug.Log("Player Health Bar canvas içinde bulundu!");
+                return;
             }
         }
+
+        // 3. Tüm sahnede ara
+        healthBar[] allHealthBars = FindObjectsOfType<healthBar>();
+        foreach (healthBar hb in allHealthBars)
+        {
+            if (hb.ownerType == healthBar.OwnerType.Player)
+            {
+                healthBarUI = hb;
+                Debug.Log("Player Health Bar tüm sahnede aranarak bulundu!");
+                return;
+            }
+        }
+
+        Debug.LogError("Hiçbir Player Health Bar bulunamadý! Health Bar oluþturduðunuzdan emin olun.");
     }
 
     public void TakeDamage(int amount)
