@@ -11,6 +11,9 @@ public class Weapon2DController : MonoBehaviour
     public Sprite idleSprite;
     public RuntimeAnimatorController shotAnimatorController;
 
+    [Header("References")]
+    public Gun gun; // Gun scriptine referans
+
     private SpriteRenderer spriteRenderer;
     private Animator animator;
 
@@ -31,7 +34,6 @@ public class Weapon2DController : MonoBehaviour
             animator.runtimeAnimatorController = shotAnimatorController;
             animator.enabled = false;
 
-            // Animasyon uzunluğunu al
             AnimationClip[] clips = shotAnimatorController.animationClips;
             if (clips.Length > 0)
                 shotAnimLength = clips[0].length;
@@ -47,25 +49,28 @@ public class Weapon2DController : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            PlayShotAnimation();
-        }
+    // void Update()
+    // {
+    //     if (Input.GetButtonDown("Fire1"))
+    //     {
+    //         // Eğer mermi yoksa animasyon oynama
+    //         if (gun != null && gun.currentAmmo <= 0)
+    //             return;
 
-        // Şu anda animasyon oynuyorsa, zamanla kontrol et
-        if (isShooting)
-        {
-            shotTimer += Time.deltaTime;
-            if (shotTimer >= shotAnimLength)
-            {
-                ResetToIdle();
-            }
-        }
-    }
+    //         PlayShotAnimation();
+    //     }
 
-    void PlayShotAnimation()
+    //     if (isShooting)
+    //     {
+    //         shotTimer += Time.deltaTime;
+    //         if (shotTimer >= shotAnimLength)
+    //         {
+    //             ResetToIdle();
+    //         }
+    //     }
+    // }
+
+    public void  PlayShotAnimation()
     {
         if (animator == null || shotAnimatorController == null)
             return;
@@ -74,7 +79,7 @@ public class Weapon2DController : MonoBehaviour
         shotTimer = 0f;
 
         animator.enabled = true;
-        animator.Play("Shot", 0, 0f); // animasyonu sıfırdan başlat
+        animator.Play("Shot", 0, 0f);
     }
 
     void ResetToIdle()

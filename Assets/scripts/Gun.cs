@@ -11,6 +11,10 @@ public class Gun : MonoBehaviour
     [Header("References")]
     public Transform muzzlePoint; // Ucu
     public Camera playerCamera;
+    [Header("External References")]
+public Weapon2DController weapon2DController;
+public WeaponSoundManager weaponSoundManager;
+
 
     // Mermi değişikliği için event
     public delegate void AmmoChangedHandler(int currentAmmo, int totalAmmo);
@@ -31,7 +35,7 @@ public class Gun : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
+        if (Input.GetButtonDown("Fire1") && Time.time >= nextTimeToFire)
         {
             if (currentAmmo > 0)
             {
@@ -41,9 +45,12 @@ public class Gun : MonoBehaviour
             else
             {
                 Debug.Log("Şarjör boş! R ile doldur.");
-                // Silah boş sesini çalabilirsiniz
+
+                if (weaponSoundManager != null)
+                    weaponSoundManager.PlayOutOfAmmoSound();
             }
         }
+
 
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -52,32 +59,39 @@ public class Gun : MonoBehaviour
     }
 
     void Shoot()
+{
+    currentAmmo--;
+    Debug.Log("Ateş! Kalan mermi: " + currentAmmo);
+
+    if (onAmmoChanged != null)
+        onAmmoChanged(currentAmmo, totalAmmo);
+
+    // Sesi çal
+    if (weaponSoundManager != null)
+        weaponSoundManager.PlayShotSound();
+
+    // Animasyonu başlat
+    if (weapon2DController != null)
+        weapon2DController.PlayShotAnimation();
+
+    Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+    RaycastHit hit;
+
+    if (Physics.Raycast(ray, out hit, range))
     {
-        currentAmmo--;
-        Debug.Log("Ateş! Kalan mermi: " + currentAmmo);
+        Debug.Log("Vurulan nesne: " + hit.collider.name);
 
-        // Event'i tetikle (UI güncellemesi için)
-        if (onAmmoChanged != null)
-            onAmmoChanged(currentAmmo, totalAmmo);
-
-        // Kameradan ileri doğru ışın gönder (nişangah ile aynı yöne)
-        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, range))
+        if (hit.collider.CompareTag("Enemy"))
         {
-            Debug.Log("Vurulan nesne: " + hit.collider.name);
-
-            if (hit.collider.CompareTag("Enemy"))
+            Enemy enemy = hit.collider.GetComponent<Enemy>();
+            if (enemy != null)
             {
-                Enemy enemy = hit.collider.GetComponent<Enemy>();
-                if (enemy != null)
-                {
-                    enemy.TakeDamage(25); // Her atışta 25 hasar
-                }
+                enemy.TakeDamage(25);
             }
         }
     }
+}
+
 
     void Reload()
     {
@@ -97,6 +111,8 @@ public class Gun : MonoBehaviour
 
         // Event'i tetikle (UI güncellemesi için)
         if (onAmmoChanged != null)
+
             onAmmoChanged(currentAmmo, totalAmmo);
+            weaponSoundManager.PlayReloadSound();
     }
 }
