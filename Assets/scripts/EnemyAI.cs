@@ -13,6 +13,9 @@ public class EnemyAI : MonoBehaviour
 
     private float nextAttackTime = 0f;
 
+    public EnemySoundManager EnemySoundManager;
+
+
 
     void Start()
     {
@@ -68,7 +71,9 @@ public class EnemyAI : MonoBehaviour
                 if (ph != null)
                 {
                     Debug.Log(gameObject.name + " ATTACKING player, damage: " + damageAmount);
+ EnemySoundManager.PlayAttackSound();
                     ph.TakeDamage(damageAmount);
+                   
                     nextAttackTime = Time.time + damageRate;
                 }
                 else

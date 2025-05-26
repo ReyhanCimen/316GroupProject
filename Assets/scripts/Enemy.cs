@@ -11,12 +11,14 @@ public class Enemy : MonoBehaviour
     public bool isEnemyHit = false;
 
     private EnemySoundManager soundManager;
+    private EnemyAnimationManager animationManager; // Eklendi
 
     void Start()
     {
         currentHealth = maxHealth;
 
         soundManager = GetComponentInChildren<EnemySoundManager>();
+        animationManager = GetComponentInChildren<EnemyAnimationManager>(); // Eklendi
 
         if (healthBarUI == null)
         {
@@ -96,7 +98,10 @@ public class Enemy : MonoBehaviour
         {
             soundManager.PlayDeathSound();
         }
-
+        if (animationManager != null)
+        {
+            animationManager.PlayDeadAnimation(); // Ölüm animasyonu tetikle
+        }
         Destroy(gameObject, 1.0f);
     }
 }

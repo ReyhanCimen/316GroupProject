@@ -337,6 +337,11 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1915144709}
+    - target: {fileID: 5060044074207828808, guid: 8d2519372d8390d40938bf38071024d4,
+        type: 3}
+      propertyPath: EnemySoundManager
+      value: 
+      objectReference: {fileID: 1409558122}
     - target: {fileID: 5138861207645370108, guid: 8d2519372d8390d40938bf38071024d4,
         type: 3}
       propertyPath: m_IsActive
@@ -1015,6 +1020,7 @@ MonoBehaviour:
   idleSprite: {fileID: 21300000, guid: ad3b0438c5b68c649a5877613a96ff1d, type: 3}
   hitAnimatorController: {fileID: 9100000, guid: 85b2d166f68510c46a030f5723088b67,
     type: 2}
+  deadSprite: {fileID: 21300000, guid: cab06b2b8452f4a4aa5f278830b6506c, type: 3}
   hitScale: {x: 0.15, y: 0.06459537, z: 0.2235}
   idleScale: {x: 0.15, y: 0.06459537, z: 0.2235}
 --- !u!82 &1409558121

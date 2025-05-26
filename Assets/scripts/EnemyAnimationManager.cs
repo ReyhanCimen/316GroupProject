@@ -5,6 +5,7 @@ public class EnemyAnimationManager : MonoBehaviour
     [Header("Visuals")]
     public Sprite idleSprite;
     public RuntimeAnimatorController hitAnimatorController;
+    public Sprite deadSprite; // Yeni: Ölüm sprite'ı
 
     [Header("Scale Animation")]
     public Vector3 hitScale = new Vector3(1.2f, 1.2f, 1f);
@@ -53,6 +54,12 @@ public class EnemyAnimationManager : MonoBehaviour
                 ResetToIdle();
             }
         }
+
+        // Can 0 veya altına düştüyse ölüm animasyonunu otomatik oynat
+        if (enemy != null && enemy.currentHealth <= 0 && spriteRenderer.sprite != deadSprite)
+        {
+            PlayDeadAnimation();
+        }
     }
 
     public void PlayHitAnimation()
@@ -72,8 +79,26 @@ public class EnemyAnimationManager : MonoBehaviour
         transform.localScale = hitScale;
     }
 
+    public void PlayDeadAnimation()
+    {
+        // Ölüm animasyonu: sprite'ı deadSprite yap, scale sıfırla, animator'ı kapat
+        if (animator != null)
+            animator.enabled = false;
+
+        if (spriteRenderer != null && deadSprite != null)
+            spriteRenderer.sprite = deadSprite;
+
+        transform.localScale = idleScale;
+        isHit = false;
+        hitTimer = 0f;
+    }
+
     void ResetToIdle()
     {
+        // Eğer düşman öldüyse idle'a dönme
+        if (enemy != null && enemy.currentHealth <= 0)
+            return;
+
         isHit = false;
         hitTimer = 0f;
 
