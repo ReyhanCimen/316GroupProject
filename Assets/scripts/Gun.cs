@@ -5,15 +5,15 @@ public class Gun : MonoBehaviour
     [Header("Gun Settings")]
     public int magazineSize = 10;
     public int totalAmmo = 50;
-    public float fireRate = 0.2f;
+    public float fireRate = 0.2f; // BoosterManager tarafından değiştirilebilmesi için public kalmalı
     public float range = 100f;
 
     [Header("References")]
     public Transform muzzlePoint; // Ucu
     public Camera playerCamera;
     [Header("External References")]
-public Weapon2DController weapon2DController;
-public WeaponSoundManager weaponSoundManager;
+    public Weapon2DController weapon2DController;
+    public WeaponSoundManager weaponSoundManager;
 
 
     // Mermi değişikliği için event
@@ -27,10 +27,7 @@ public WeaponSoundManager weaponSoundManager;
     void Start()
     {
         currentAmmo = magazineSize;
-
-        // UI güncellemesi için event'i tetikle
-        if (onAmmoChanged != null)
-            onAmmoChanged(currentAmmo, totalAmmo);
+        NotifyAmmoStatsChanged(); // Başlangıçta UI'ı güncellemek için
     }
 
     void Update()
@@ -59,45 +56,44 @@ public WeaponSoundManager weaponSoundManager;
     }
 
     void Shoot()
-{
-    currentAmmo--;
-    Debug.Log("Ateş! Kalan mermi: " + currentAmmo);
-
-    if (onAmmoChanged != null)
-        onAmmoChanged(currentAmmo, totalAmmo);
-
-    // Sesi çal
-    if (weaponSoundManager != null)
-        weaponSoundManager.PlayShotSound();
-
-    // Animasyonu başlat
-    if (weapon2DController != null)
-        weapon2DController.PlayShotAnimation();
-
-    Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-    RaycastHit hit;
-
-    if (Physics.Raycast(ray, out hit, range))
     {
-        Debug.Log("Vurulan nesne: " + hit.collider.name);
+        currentAmmo--;
+        Debug.Log("Ateş! Kalan mermi: " + currentAmmo);
 
-        if (hit.collider.CompareTag("Enemy"))
+        NotifyAmmoStatsChanged(); // Ateş ettikten sonra UI'ı güncelle
+
+        // Sesi çal
+        if (weaponSoundManager != null)
+            weaponSoundManager.PlayShotSound();
+
+        // Animasyonu başlat
+        if (weapon2DController != null)
+            weapon2DController.PlayShotAnimation();
+
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, range))
         {
-            Enemy enemy = hit.collider.GetComponent<Enemy>();
-            if (enemy != null)
+            Debug.Log("Vurulan nesne: " + hit.collider.name);
+
+            if (hit.collider.CompareTag("Enemy"))
             {
-                enemy.TakeDamage(25);
+                Enemy enemy = hit.collider.GetComponent<Enemy>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(25); // Örnek hasar değeri
+                }
             }
         }
     }
-}
 
 
     void Reload()
     {
         if (currentAmmo == magazineSize || totalAmmo <= 0)
         {
-            Debug.Log("Dolu ya da mermi yok.");
+            Debug.Log("Şarjör dolu ya da mermi yok.");
             return;
         }
 
@@ -109,10 +105,32 @@ public WeaponSoundManager weaponSoundManager;
 
         Debug.Log("Şarjör değiştirildi. Kalan toplam mermi: " + totalAmmo);
 
-        // Event'i tetikle (UI güncellemesi için)
-        if (onAmmoChanged != null)
+        NotifyAmmoStatsChanged(); // Şarjör değiştirdikten sonra UI'ı güncelle
 
-            onAmmoChanged(currentAmmo, totalAmmo);
+        if (weaponSoundManager != null)
             weaponSoundManager.PlayReloadSound();
+    }
+
+    // YENİ METOD: Dışarıdan çağrıldığında onAmmoChanged olayını tetikler
+    // ve UI'ın güncellenmesini sağlar.
+    public void NotifyAmmoStatsChanged()
+    {
+        if (onAmmoChanged != null)
+        {
+            onAmmoChanged(currentAmmo, totalAmmo); // totalAmmo yerine magazineSize'ı da event'e ekleyebilirsiniz
+                                                   // eğer AmmoDisplay'in bu bilgiye event üzerinden ihtiyacı varsa.
+                                                   // Mevcut AmmoDisplay Update'te magazineSize'ı zaten alıyor.
+            Debug.Log($"Gun: NotifyAmmoStatsChanged çağrıldı. Current: {currentAmmo}, Total: {totalAmmo}, MagSize: {magazineSize}");
+        }
+    }
+
+    // BoosterManager'ın şarjör kapasitesini artırdıktan sonra
+    // mevcut mermiyi de doldurmak istersek kullanabileceğimiz bir metod.
+    // Şimdilik BoosterManager sadece magazineSize'ı artırıyor.
+    public void AddAmmoToMagazine(int amount)
+    {
+        currentAmmo += amount;
+        currentAmmo = Mathf.Clamp(currentAmmo, 0, magazineSize);
+        NotifyAmmoStatsChanged();
     }
 }

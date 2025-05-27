@@ -5,61 +5,41 @@ public class PlayerHealth : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
 
-    // Health Bar referansý
+    // Health Bar referansï¿½
     public healthBar healthBarUI;
 
     void Start()
     {
         currentHealth = maxHealth;
+        FindHealthBar(); // Health bar'ï¿½ bul
 
-        // Health Bar referansýný bul - Daha kapsamlý bir arama yapalým
-        FindHealthBar();
-
-        // Debug için bir kontrol ekleyelim
-        if (healthBarUI == null)
+        if (healthBarUI != null)
         {
-            Debug.LogError("PlayerHealth: Health Bar referansý bulunamadý! Player UI oluþturduðunuzdan emin olun.");
+            InitializeHealthBar();
+            Debug.Log("Player Health Bar baï¿½arï¿½yla baï¿½latï¿½ldï¿½.");
         }
         else
         {
-            // Health Bar'ý baþlangýç deðerine ayarla
-            healthBarUI.ownerType = healthBar.OwnerType.Player;
-            healthBarUI.maxHealth = maxHealth;
-            healthBarUI.health = maxHealth;
-
-            // Slider deðerlerini manuel olarak ayarlayalým
-            if (healthBarUI.healthSlider != null)
-            {
-                healthBarUI.healthSlider.maxValue = maxHealth;
-                healthBarUI.healthSlider.value = maxHealth;
-            }
-
-            if (healthBarUI.easeHealthSlider != null)
-            {
-                healthBarUI.easeHealthSlider.maxValue = maxHealth;
-                healthBarUI.easeHealthSlider.value = maxHealth;
-            }
-
-            Debug.Log("Player Health Bar baþarýyla baþlatýldý.");
+            Debug.LogError("PlayerHealth: Start iï¿½inde Health Bar referansï¿½ bulunamadï¿½!");
         }
     }
 
     void FindHealthBar()
     {
-        // 1. Önce PlayerUI tag'ine sahip olanlar arasýnda ara
+        // Sahnede "PlayerUI" tag'ine sahip healthBar'ï¿½ bulmaya ï¿½alï¿½ï¿½
         GameObject[] bars = GameObject.FindGameObjectsWithTag("PlayerUI");
-        foreach (GameObject bar in bars)
+        foreach (GameObject barGO in bars)
         {
-            healthBar hb = bar.GetComponentInChildren<healthBar>(true); // inactive objeleri de içerecek þekilde
-            if (hb != null)
+            healthBar hb = barGO.GetComponentInChildren<healthBar>(true); // inactive objeleri de iï¿½erecek ï¿½ekilde
+            if (hb != null && hb.ownerType == healthBar.OwnerType.Player) // Sahip tipini de kontrol et
             {
                 healthBarUI = hb;
-                Debug.Log("Player Health Bar 'PlayerUI' tag ile bulundu!");
-                return; // Bulunca çýk
+                Debug.Log("Player Health Bar 'PlayerUI' tag ve ownerType ile bulundu!");
+                return;
             }
         }
 
-        // 2. Canvas içinde ara
+        // Eï¿½er tag ile bulunamazsa, Canvas iï¿½inde ara
         Canvas[] canvases = FindObjectsOfType<Canvas>();
         foreach (Canvas c in canvases)
         {
@@ -67,44 +47,104 @@ public class PlayerHealth : MonoBehaviour
             if (hb != null && hb.ownerType == healthBar.OwnerType.Player)
             {
                 healthBarUI = hb;
-                Debug.Log("Player Health Bar canvas içinde bulundu!");
+                Debug.Log("Player Health Bar canvas iï¿½inde ve ownerType ile bulundu!");
                 return;
             }
         }
 
-        // 3. Tüm sahnede ara
-        healthBar[] allHealthBars = FindObjectsOfType<healthBar>();
+        // Hala bulunamadï¿½ysa, tï¿½m sahnede ownerType'a gï¿½re ara
+        healthBar[] allHealthBars = FindObjectsOfType<healthBar>(true);
         foreach (healthBar hb in allHealthBars)
         {
             if (hb.ownerType == healthBar.OwnerType.Player)
             {
                 healthBarUI = hb;
-                Debug.Log("Player Health Bar tüm sahnede aranarak bulundu!");
+                Debug.Log("Player Health Bar tï¿½m sahnede ownerType ile bulundu!");
                 return;
             }
         }
+        // Bu noktaya gelinirse, healthBarUI hala null olabilir.
+    }
 
-        Debug.LogError("Hiçbir Player Health Bar bulunamadý! Health Bar oluþturduðunuzdan emin olun.");
+    void InitializeHealthBar()
+    {
+        if (healthBarUI != null)
+        {
+            healthBarUI.ownerType = healthBar.OwnerType.Player; // Tekrar emin olalï¿½m
+            healthBarUI.maxHealth = maxHealth;
+            healthBarUI.health = currentHealth; // Baï¿½langï¿½ï¿½ta currentHealth neyse o
+
+            // Slider deï¿½erlerini manuel olarak ayarlayalï¿½m
+            if (healthBarUI.healthSlider != null)
+            {
+                healthBarUI.healthSlider.maxValue = maxHealth;
+                healthBarUI.healthSlider.value = currentHealth;
+            }
+
+            if (healthBarUI.easeHealthSlider != null)
+            {
+                healthBarUI.easeHealthSlider.maxValue = maxHealth;
+                healthBarUI.easeHealthSlider.value = currentHealth;
+            }
+            healthBarUI.UpdateHealthBarColor(); // Rengi de gï¿½ncelleyelim
+        }
     }
 
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Canï¿½n 0'ï¿½n altï¿½na dï¿½ï¿½mesini veya maxHealth'i aï¿½masï¿½nï¿½ engelle
         Debug.Log("PLAYER DAMAGED! Amount: " + amount + ", Current health: " + currentHealth);
 
-        // Health Bar'ý güncelle
         if (healthBarUI != null)
         {
-            healthBarUI.takeDamage(amount);
+            healthBarUI.takeDamage(amount); // healthBarUI.health = currentHealth; de olabilir veya direkt takeDamage
         }
         else
         {
-            Debug.LogError("Player Health Bar bulunamadý, hasar gösterimi yapýlamadý!");
+            // Health bar bulunamadï¿½ysa bile FindHealthBar'ï¿½ tekrar ï¿½aï¿½ï¿½rmayï¿½ deneyebiliriz.
+            FindHealthBar();
+            if (healthBarUI != null)
+            {
+                InitializeHealthBar(); // Eï¿½er yeni bulunduysa baï¿½lat
+                healthBarUI.takeDamage(amount);
+            }
+            else
+            {
+                Debug.LogError("Player Health Bar bulunamadï¿½, hasar gï¿½sterimi yapï¿½lamadï¿½!");
+            }
         }
 
         if (currentHealth <= 0)
         {
             Die();
+        }
+    }
+
+    // YENï¿½ METOD: Canï¿½ tamamen doldurur ve UI'ï¿½ gï¿½nceller
+    public void HealToFull()
+    {
+        currentHealth = maxHealth;
+        Debug.Log("PLAYER HEALED TO FULL! Current health: " + currentHealth);
+
+        if (healthBarUI != null)
+        {
+            healthBarUI.ResetHealth(); // healthBar scriptindeki ResetHealth'i ï¿½aï¿½ï¿½rï¿½yoruz
+            Debug.Log("Player Health Bar sï¿½fï¿½rlandï¿½ ve tam cana ayarlandï¿½.");
+        }
+        else
+        {
+            // Health bar bulunamadï¿½ysa bile FindHealthBar'ï¿½ tekrar ï¿½aï¿½ï¿½rmayï¿½ deneyebiliriz.
+            FindHealthBar();
+            if (healthBarUI != null)
+            {
+                InitializeHealthBar(); // Eï¿½er yeni bulunduysa baï¿½lat
+                healthBarUI.ResetHealth();
+            }
+            else
+            {
+                Debug.LogError("Player Health Bar bulunamadï¿½, tam can gï¿½sterimi yapï¿½lamadï¿½!");
+            }
         }
     }
 
