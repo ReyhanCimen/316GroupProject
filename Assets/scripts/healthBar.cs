@@ -14,60 +14,102 @@ public class healthBar : MonoBehaviour
     public float health;
     private float lerpSpeed = 0.05f;
 
-    // Farkl� renkler i�in
     public Color playerHealthColor = Color.green;
     public Color enemyHealthColor = Color.red;
 
-    void Awake() // Start yerine Awake kullanmak, di�er scriptlerin Start'�ndan �nce �al��mas�n� sa�layabilir.
-    {
-        // Slider referanslar�n� otomatik olarak bulal�m (e�er atanmam��sa)
-        if (healthSlider == null)
-            healthSlider = GetComponent<Slider>();
+    private bool isInitialized = false;
 
-        // easeHealthSlider genellikle healthSlider'�n bir child'� olur.
+    void Awake()
+    {
+        Debug.Log($"[{gameObject.name}] Awake başlıyor - Slider referansları kontrol ediliyor");
+
+        // Ana slider'ı bul
+        if (healthSlider == null)
+        {
+            healthSlider = GetComponent<Slider>();
+            Debug.Log($"[{gameObject.name}] Ana slider bulundu: {(healthSlider != null ? healthSlider.name : "NULL")}");
+        }
+
+        // Ease slider'ı bul
         if (easeHealthSlider == null && transform.childCount > 0)
         {
-            // Do�rudan ilk child'� almak yerine, Slider bile�enine sahip bir child arayabiliriz.
-            // Veya Inspector'dan atanmas� daha g�venlidir. �imdilik basit tutal�m:
             Slider[] childSliders = GetComponentsInChildren<Slider>();
+            Debug.Log($"[{gameObject.name}] Toplam slider sayısı: {childSliders.Length}");
+
             foreach (Slider s in childSliders)
             {
-                if (s != healthSlider) // Kendisi olmayan ilk slider'� ease olarak kabul et
+                Debug.Log($"[{gameObject.name}] Bulunan slider: {s.name}");
+                if (s != healthSlider)
                 {
                     easeHealthSlider = s;
+                    Debug.Log($"[{gameObject.name}] Ease slider atandı: {s.name}");
                     break;
                 }
             }
         }
 
+        // Slider'ları manuel ara (eğer hala bulunmadıysa)
+        if (healthSlider == null || easeHealthSlider == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] Slider referansları eksik! Manuel arama yapılıyor...");
+            FindSlidersManually();
+        }
 
-        // health = maxHealth; // Bu sat�r PlayerHealth veya EnemyHealth taraf�ndan ayarlanmal�.
-        // healthBar sadece g�rselle�tirmeden sorumlu olmal�.
+        if (health == 0) health = maxHealth;
 
-        // Slider'lar�n max de�erlerini ayarlayal�m
+        Debug.Log($"[{gameObject.name}] Awake tamamlandı - HealthSlider: {(healthSlider != null)}, EaseSlider: {(easeHealthSlider != null)}");
+    }
+
+    void FindSlidersManually()
+    {
+        // Tüm child'larda slider ara
+        Slider[] allSliders = GetComponentsInChildren<Slider>(true);
+
+        for (int i = 0; i < allSliders.Length; i++)
+        {
+            Debug.Log($"[{gameObject.name}] Manuel arama - Slider {i}: {allSliders[i].name}");
+
+            if (healthSlider == null)
+            {
+                healthSlider = allSliders[i];
+                Debug.Log($"[{gameObject.name}] HealthSlider manuel olarak atandı: {healthSlider.name}");
+            }
+            else if (easeHealthSlider == null && allSliders[i] != healthSlider)
+            {
+                easeHealthSlider = allSliders[i];
+                Debug.Log($"[{gameObject.name}] EaseHealthSlider manuel olarak atandı: {easeHealthSlider.name}");
+                break;
+            }
+        }
+    }
+
+    void Start()
+    {
+        Invoke("InitializeHealthBar", 0.05f);
+    }
+
+    void InitializeHealthBar()
+    {
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
-            healthSlider.value = health; // Ba�lang�� de�erini health'e e�itle
-        }
-        else
-        {
-            Debug.LogError(gameObject.name + ": Health Slider bulunamad�!");
+            healthSlider.value = health;
+            Debug.Log($"[{gameObject.name}] HealthSlider başlatıldı - MaxValue: {healthSlider.maxValue}, Value: {healthSlider.value}");
         }
 
         if (easeHealthSlider != null)
         {
             easeHealthSlider.maxValue = maxHealth;
-            easeHealthSlider.value = health; // Ba�lang�� de�erini health'e e�itle
+            easeHealthSlider.value = health;
+            Debug.Log($"[{gameObject.name}] EaseHealthSlider başlatıldı - MaxValue: {easeHealthSlider.maxValue}, Value: {easeHealthSlider.value}");
         }
 
-        // Renk ayarla
         UpdateHealthBarColor();
+        isInitialized = true;
 
-        Debug.Log(gameObject.name + " health bar ba�lat�ld� - Owner tipi: " + ownerType.ToString() + ", MaxHealth: " + maxHealth + ", CurrentHealth: " + health);
+        Debug.Log($"[{gameObject.name}] Health bar başlatıldı - Owner: {ownerType}, MaxHealth: {maxHealth}, CurrentHealth: {health}");
     }
 
-    // DE����KL�K: Bu metodu public yapt�k
     public void UpdateHealthBarColor()
     {
         if (healthSlider != null && healthSlider.fillRect != null)
@@ -76,74 +118,192 @@ public class healthBar : MonoBehaviour
             if (fillImage != null)
             {
                 fillImage.color = (ownerType == OwnerType.Player) ? playerHealthColor : enemyHealthColor;
-                // Debug.Log(gameObject.name + " rengi ayarland�: " + ((ownerType == OwnerType.Player) ? "Ye�il (Player)" : "K�rm�z� (Enemy)"));
             }
-            else
-            {
-                Debug.LogError(gameObject.name + ": Fill Image bulunamad�!");
-            }
-        }
-        else
-        {
-            // Debug.LogError(gameObject.name + ": Health Slider ("+ (healthSlider != null) +") veya Fill Rect ("+ (healthSlider?.fillRect != null) +") bulunamad�!");
         }
     }
 
     void Update()
     {
-        // health de�eri d��ar�dan (PlayerHealth, EnemyHealth) y�netildi�i i�in
-        // healthSlider.value = health; sat�r� takeDamage veya ResetHealth gibi metodlarda g�ncellenmeli.
-        // Update'te s�rekli e�itlemek yerine, de�i�iklik oldu�unda e�itlemek daha performansl� olabilir.
-        // Ancak yumu�ak ge�i� i�in easeHealthSlider'�n Update'te kalmas� mant�kl�.
+        if (!isInitialized) return;
 
-        if (healthSlider != null && healthSlider.value != health) // Sadece de�i�iklik varsa g�ncelle
+        // SADECE EASE SLIDER'I UPDATE ET - NORMAL SLIDER'A DOKUNMA!
+        if (easeHealthSlider != null && healthSlider != null)
         {
-            healthSlider.value = health;
-        }
-
-        if (easeHealthSlider != null)
-        {
-            if (easeHealthSlider.value != healthSlider.value) // Sadece fark varsa lerp yap
+            if (Mathf.Abs(easeHealthSlider.value - healthSlider.value) > 0.01f)
             {
-                easeHealthSlider.value = Mathf.Lerp(easeHealthSlider.value, health, lerpSpeed * Time.deltaTime * 60); // Frame rate ba��ms�z lerp
+                // Enemy için daha hızlı lerp (anında görünmesi için)
+                float lerpSpeedMultiplier = (ownerType == OwnerType.Enemy) ? 5f : 1f;
+                float targetLerpSpeed = lerpSpeed * lerpSpeedMultiplier * Time.deltaTime * 60f;
+
+                easeHealthSlider.value = Mathf.Lerp(easeHealthSlider.value, healthSlider.value, targetLerpSpeed);
             }
         }
     }
 
-    public void takeDamage(int damage) // Hasar miktar� int ise parametre int olmal�
+    public void takeDamage(int damage)
     {
         float oldHealth = health;
         health -= damage;
         health = Mathf.Clamp(health, 0, maxHealth);
 
-        // Debug.Log(gameObject.name + " health bar damage: " + damage +
-        //           ", Old: " + oldHealth + ", New: " + health);
+        Debug.Log($"[{gameObject.name}] health bar damage: {damage}, Old: {oldHealth}, New: {health}");
 
         if (healthSlider != null)
         {
+            Debug.Log($"[{gameObject.name}] Slider ÖNCE - Value: {healthSlider.value}");
+
+            // DOĞRUDAN HEALTH DEĞERİNİ SET ET
             healthSlider.value = health;
-            // Debug.Log("Health slider de�eri g�ncellendi: " + health);
+
+            Debug.Log($"[{gameObject.name}] Slider SONRA - Value: {healthSlider.value}");
+            Debug.Log($"[{gameObject.name}] Health yüzdesi: {(health / maxHealth * 100f):F1}%");
         }
-        // easeHealthSlider Update'te zaten yumu�ak ge�i� yapacak
     }
 
     public void ResetHealth()
     {
         health = maxHealth;
+        Debug.Log($"[{gameObject.name}] Health reset edildi: {health}");
 
         if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
             healthSlider.value = maxHealth;
+        }
 
         if (easeHealthSlider != null)
-            easeHealthSlider.value = maxHealth; // Ease slider'� da hemen max yapabiliriz
+        {
+            easeHealthSlider.maxValue = maxHealth;
+            easeHealthSlider.value = maxHealth;
+        }
 
-        UpdateHealthBarColor(); // Tam can oldu�unda rengi tekrar kontrol et/ayarla
-        // Debug.Log(gameObject.name + " sa�l��� s�f�rland�.");
+        UpdateHealthBarColor();
     }
 
     public float GetHealthPercent()
     {
-        if (maxHealth == 0) return 0; // S�f�ra b�lme hatas�n� engelle
+        if (maxHealth == 0) return 0;
         return health / maxHealth;
+    }
+
+    public void ManualInitialize(float maxHp, float currentHp, OwnerType owner)
+    {
+        ownerType = owner;
+        maxHealth = maxHp;
+        health = currentHp;
+
+        Debug.Log($"[{gameObject.name}] Manuel başlatma: MaxHealth={maxHealth}, Health={health}, Owner={ownerType}");
+
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = health;
+        }
+
+        if (easeHealthSlider != null)
+        {
+            easeHealthSlider.maxValue = maxHealth;
+            easeHealthSlider.value = health;
+        }
+
+        UpdateHealthBarColor();
+        isInitialized = true;
+    }
+
+    // SETTER METHOD - PlayerHealth'ten çağrılacak
+    public void SetHealth(float newHealth)
+    {
+        health = Mathf.Clamp(newHealth, 0, maxHealth); // ÖNEMLİ: Clamp ekle
+
+        Debug.Log($"[{gameObject.name}] SetHealth çağrıldı - Yeni Health: {health}");
+        Debug.Log($"[{gameObject.name}] Slider referansları - HealthSlider: {(healthSlider != null)}, EaseSlider: {(easeHealthSlider != null)}");
+
+        if (healthSlider != null)
+        {
+            Debug.Log($"[{gameObject.name}] HealthSlider ÖNCE - Value: {healthSlider.value}, MaxValue: {healthSlider.maxValue}");
+            healthSlider.value = health; // Health zaten clamp edildi
+            Debug.Log($"[{gameObject.name}] HealthSlider SONRA - Value: {healthSlider.value}");
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] HealthSlider referansı NULL! Tekrar aranıyor...");
+            FindSlidersManually();
+            if (healthSlider != null)
+            {
+                healthSlider.value = health;
+                Debug.Log($"[{gameObject.name}] HealthSlider bulundu ve güncellendi: {healthSlider.value}");
+            }
+        }
+
+        if (easeHealthSlider != null)
+        {
+            Debug.Log($"[{gameObject.name}] EaseHealthSlider ÖNCE - Value: {easeHealthSlider.value}");
+            easeHealthSlider.value = health; // Health zaten clamp edildi
+            Debug.Log($"[{gameObject.name}] EaseHealthSlider SONRA - Value: {easeHealthSlider.value}");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] EaseHealthSlider referansı NULL!");
+        }
+
+        Debug.Log($"[{gameObject.name}] SetHealth tamamlandı - Yüzde: {(health / maxHealth * 100f):F1}%");
+    }
+
+    // Sadece görsel efektler için - hasar hesaplama yapmaz
+    public void PlayDamageEffect(int damageAmount)
+    {
+        Debug.Log($"[{gameObject.name}] Hasar efekti oynatılıyor: {damageAmount}");
+
+        // Burada hasar efektleri eklenebilir:
+        // - Renk değişimi
+        // - Titreme efekti  
+        // - Ses efekti
+        // - Particle efekti
+
+        // Örnek: Kırmızı yanıp sönme efekti
+        if (healthSlider != null && healthSlider.fillRect != null)
+        {
+            Image fillImage = healthSlider.fillRect.GetComponent<Image>();
+            if (fillImage != null)
+            {
+                StartCoroutine(DamageFlashEffect(fillImage));
+            }
+        }
+    }
+
+    System.Collections.IEnumerator DamageFlashEffect(Image fillImage)
+    {
+        Color originalColor = fillImage.color;
+        fillImage.color = Color.white; // Beyaz flash
+        yield return new WaitForSeconds(0.1f);
+        fillImage.color = originalColor;
+    }
+
+    // Ölüm durumu için özel metod
+    public void SetDead()
+    {
+        health = 0;
+
+        if (healthSlider != null)
+        {
+            healthSlider.value = 0;
+            Debug.Log($"[{gameObject.name}] SetDead çağrıldı - HealthSlider: {healthSlider.value}");
+        }
+
+        if (easeHealthSlider != null)
+        {
+            easeHealthSlider.value = 0;
+            Debug.Log($"[{gameObject.name}] SetDead çağrıldı - EaseHealthSlider: {easeHealthSlider.value}");
+        }
+
+        // Ölüm rengi efekti (isteğe bağlı)
+        if (healthSlider != null && healthSlider.fillRect != null)
+        {
+            Image fillImage = healthSlider.fillRect.GetComponent<Image>();
+            if (fillImage != null)
+            {
+                fillImage.color = Color.gray; // Gri renk = ölü
+            }
+        }
     }
 }

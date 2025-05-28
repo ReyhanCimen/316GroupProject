@@ -4,42 +4,52 @@ public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 100;
     public int currentHealth;
-
-    // Health Bar referans�
     public healthBar healthBarUI;
+
+    private bool isInitialized = false;
+    private bool isDead = false;
 
     void Start()
     {
         currentHealth = maxHealth;
-        FindHealthBar(); // Health bar'� bul
+        Debug.Log("PlayerHealth Start - CurrentHealth: " + currentHealth + ", MaxHealth: " + maxHealth);
+
+        Invoke("InitializeHealthSystem", 0.1f);
+    }
+
+    void InitializeHealthSystem()
+    {
+        FindHealthBar();
 
         if (healthBarUI != null)
         {
             InitializeHealthBar();
-            Debug.Log("Player Health Bar ba�ar�yla ba�lat�ld�.");
+            isInitialized = true;
+            Debug.Log("Player Health System başarıyla başlatıldı. Current Health: " + currentHealth);
         }
         else
         {
-            Debug.LogError("PlayerHealth: Start i�inde Health Bar referans� bulunamad�!");
+            Debug.LogError("PlayerHealth: Health Bar referansı bulunamadı!");
+            Invoke("InitializeHealthSystem", 0.5f);
         }
     }
 
     void FindHealthBar()
     {
-        // Sahnede "PlayerUI" tag'ine sahip healthBar'� bulmaya �al��
+        if (healthBarUI != null) return;
+
         GameObject[] bars = GameObject.FindGameObjectsWithTag("PlayerUI");
         foreach (GameObject barGO in bars)
         {
-            healthBar hb = barGO.GetComponentInChildren<healthBar>(true); // inactive objeleri de i�erecek �ekilde
-            if (hb != null && hb.ownerType == healthBar.OwnerType.Player) // Sahip tipini de kontrol et
+            healthBar hb = barGO.GetComponentInChildren<healthBar>(true);
+            if (hb != null && hb.ownerType == healthBar.OwnerType.Player)
             {
                 healthBarUI = hb;
-                Debug.Log("Player Health Bar 'PlayerUI' tag ve ownerType ile bulundu!");
+                Debug.Log("Player Health Bar bulundu!");
                 return;
             }
         }
 
-        // E�er tag ile bulunamazsa, Canvas i�inde ara
         Canvas[] canvases = FindObjectsOfType<Canvas>();
         foreach (Canvas c in canvases)
         {
@@ -47,34 +57,31 @@ public class PlayerHealth : MonoBehaviour
             if (hb != null && hb.ownerType == healthBar.OwnerType.Player)
             {
                 healthBarUI = hb;
-                Debug.Log("Player Health Bar canvas i�inde ve ownerType ile bulundu!");
+                Debug.Log("Player Health Bar canvas içinde bulundu!");
                 return;
             }
         }
 
-        // Hala bulunamad�ysa, t�m sahnede ownerType'a g�re ara
         healthBar[] allHealthBars = FindObjectsOfType<healthBar>(true);
         foreach (healthBar hb in allHealthBars)
         {
             if (hb.ownerType == healthBar.OwnerType.Player)
             {
                 healthBarUI = hb;
-                Debug.Log("Player Health Bar t�m sahnede ownerType ile bulundu!");
+                Debug.Log("Player Health Bar sahnede bulundu!");
                 return;
             }
         }
-        // Bu noktaya gelinirse, healthBarUI hala null olabilir.
     }
 
     void InitializeHealthBar()
     {
         if (healthBarUI != null)
         {
-            healthBarUI.ownerType = healthBar.OwnerType.Player; // Tekrar emin olal�m
+            healthBarUI.ownerType = healthBar.OwnerType.Player;
             healthBarUI.maxHealth = maxHealth;
-            healthBarUI.health = currentHealth; // Ba�lang��ta currentHealth neyse o
+            healthBarUI.health = currentHealth;
 
-            // Slider de�erlerini manuel olarak ayarlayal�m
             if (healthBarUI.healthSlider != null)
             {
                 healthBarUI.healthSlider.maxValue = maxHealth;
@@ -86,71 +93,89 @@ public class PlayerHealth : MonoBehaviour
                 healthBarUI.easeHealthSlider.maxValue = maxHealth;
                 healthBarUI.easeHealthSlider.value = currentHealth;
             }
-            healthBarUI.UpdateHealthBarColor(); // Rengi de g�ncelleyelim
+
+            healthBarUI.UpdateHealthBarColor();
+            Debug.Log("Health Bar başlatıldı - Current: " + currentHealth + ", Max: " + maxHealth);
         }
     }
 
     public void TakeDamage(int amount)
     {
-        currentHealth -= amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Can�n 0'�n alt�na d��mesini veya maxHealth'i a�mas�n� engelle
-        Debug.Log("PLAYER DAMAGED! Amount: " + amount + ", Current health: " + currentHealth);
+        // Ölü ise hasar alma
+        if (isDead)
+        {
+            Debug.Log("Player zaten öldü, daha fazla hasar alamaz!");
+            return;
+        }
 
+        if (!isInitialized)
+        {
+            Debug.LogWarning("Player health system henüz başlatılmamış!");
+            return;
+        }
+
+        int oldHealth = currentHealth;
+        currentHealth -= amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        Debug.Log("PLAYER DAMAGED! Amount: " + amount + ", Old Health: " + oldHealth + ", Current health: " + currentHealth);
+
+        // Health Bar'ı güncelle - SADECE SETHEALTH KULLAN!
         if (healthBarUI != null)
         {
-            healthBarUI.takeDamage(amount); // healthBarUI.health = currentHealth; de olabilir veya direkt takeDamage
+            // SADECE health bar'ın internal değerlerini güncelle
+            healthBarUI.SetHealth(currentHealth);
+
+            // NOT: takeDamage() ÇAĞIRMA! Çünkü bu çifte hasar yaratıyor!
         }
         else
         {
-            // Health bar bulunamad�ysa bile FindHealthBar'� tekrar �a��rmay� deneyebiliriz.
-            FindHealthBar();
-            if (healthBarUI != null)
-            {
-                InitializeHealthBar(); // E�er yeni bulunduysa ba�lat
-                healthBarUI.takeDamage(amount);
-            }
-            else
-            {
-                Debug.LogError("Player Health Bar bulunamad�, hasar g�sterimi yap�lamad�!");
-            }
+            Debug.LogError("Health Bar referansı yok!");
         }
 
-        if (currentHealth <= 0)
+        // Ölüm kontrolü
+        if (currentHealth <= 0 && !isDead)
         {
             Die();
         }
     }
 
-    // YEN� METOD: Can� tamamen doldurur ve UI'� g�nceller
     public void HealToFull()
     {
         currentHealth = maxHealth;
+        isDead = false;
         Debug.Log("PLAYER HEALED TO FULL! Current health: " + currentHealth);
 
         if (healthBarUI != null)
         {
-            healthBarUI.ResetHealth(); // healthBar scriptindeki ResetHealth'i �a��r�yoruz
-            Debug.Log("Player Health Bar s�f�rland� ve tam cana ayarland�.");
-        }
-        else
-        {
-            // Health bar bulunamad�ysa bile FindHealthBar'� tekrar �a��rmay� deneyebiliriz.
-            FindHealthBar();
-            if (healthBarUI != null)
-            {
-                InitializeHealthBar(); // E�er yeni bulunduysa ba�lat
-                healthBarUI.ResetHealth();
-            }
-            else
-            {
-                Debug.LogError("Player Health Bar bulunamad�, tam can g�sterimi yap�lamad�!");
-            }
+            healthBarUI.ResetHealth();
         }
     }
 
     void Die()
     {
+        isDead = true;
         Debug.Log("Player died!");
-        // TODO: Disable controls, show game over screen, etc.
+
+        // Ölüm efektleri, oyun durma vs. burada eklenebilir
+    }
+
+    // Test tuşları
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            TakeDamage(10);
+        }
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            HealToFull();
+        }
+    }
+
+    // Public getter - EnemyAI'ın kontrol etmesi için
+    public bool IsDead()
+    {
+        return isDead;
     }
 }

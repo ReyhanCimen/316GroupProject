@@ -176,10 +176,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9db6f2c6564de6046aa4a9f3ff847eb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ownerType: 0
   healthSlider: {fileID: 0}
   easeHealthSlider: {fileID: 0}
   maxHealth: 100
   health: 0
+  playerHealthColor: {r: 0, g: 1, b: 0, a: 1}
+  enemyHealthColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &3404930137821588414
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,7 +432,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &2824139935598027063
 MonoBehaviour:
   m_ObjectHideFlags: 0
