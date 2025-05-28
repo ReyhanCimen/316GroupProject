@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    public WaveManager waveManager;
     [Header("Health Settings")]
     public int maxHealth = 100;
     [HideInInspector]
@@ -102,6 +103,8 @@ public class Enemy : MonoBehaviour
         {
             animationManager.PlayDeadAnimation(); // Ölüm animasyonu tetikle
         }
-        Destroy(gameObject, 1.0f);
+         if (waveManager != null)
+        waveManager.OnZombieKilled(gameObject);
+    Destroy(gameObject, 1.0f);
     }
 }

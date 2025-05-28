@@ -40,7 +40,7 @@ public class AmmoDisplay : MonoBehaviour
         if (gunScript != null && ammoText != null)
         {
             ammoText.text = gunScript.currentAmmo + "/" + gunScript.totalAmmo;
-            Debug.Log("Ammo text updated: " + ammoText.text);
+            // Debug.Log("Ammo text updated: " + ammoText.text);
         }
     }
 

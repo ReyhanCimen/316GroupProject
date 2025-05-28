@@ -7,6 +7,8 @@ TagManager:
   - Enemy
   - PlayerUI
   - EnemyUI
+  - HealthBoost
+  - AmmoBoost
   layers:
   - Default
   - TransparentFX

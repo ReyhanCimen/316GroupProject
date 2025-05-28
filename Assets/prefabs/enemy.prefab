@@ -354,8 +354,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ownerType: 1
-  healthSlider: {fileID: 0}
-  easeHealthSlider: {fileID: 0}
+  healthSlider: {fileID: 4268396708527702324}
+  easeHealthSlider: {fileID: 6726378493403010616}
   maxHealth: 100
   health: 0
   playerHealthColor: {r: 0, g: 1, b: 0, a: 1}

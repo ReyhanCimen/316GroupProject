@@ -5,18 +5,18 @@ using UnityEngine.UI;
 
 public class WaveManager : MonoBehaviour
 {
-    [Header("Zombie Settings")]
-    public GameObject zombiePrefab;
-    public Transform[] spawnPoints;
-
     [Header("Wave Settings")]
-    public int[] zombiesPerWave = new int[] { 10, 15, 20, 25, 50 };
+    public int[] zombiesPerWave = { 10, 15, 20, 25, 50 };
+    public Transform[] zombieSpawnPoints;
+    public GameObject zombiePrefab;
+    public Text waveMessageText; // Legacy UI.Text
+
+    [Header("References")]
+    public BoosterSpawner boosterSpawner;
+
     private int currentWave = 0;
     private List<GameObject> aliveZombies = new List<GameObject>();
-    private bool isWaveInProgress = false;
-
-    [Header("UI Elements")]
-    public Text waveText;
+    private bool waveInProgress = false;
 
     private void Start()
     {
@@ -25,54 +25,78 @@ public class WaveManager : MonoBehaviour
 
     private void Update()
     {
-        if (!isWaveInProgress && currentWave < zombiesPerWave.Length)
+        if (waveInProgress && aliveZombies.Count == 0)
         {
-            aliveZombies.RemoveAll(z => z == null);
+            waveInProgress = false;
 
-            if (aliveZombies.Count == 0)
+            if (currentWave < zombiesPerWave.Length)
             {
                 StartCoroutine(StartNextWave());
+            }
+            else
+            {
+                waveMessageText.text = "All waves completed!";
             }
         }
     }
 
     IEnumerator StartNextWave()
     {
-        isWaveInProgress = true;
+        waveMessageText.text = $"Wave {currentWave + 1} is about to start!";
+        yield return new WaitForSeconds(1f);
 
-        if (currentWave >= zombiesPerWave.Length)
+        for (int i = 5; i >= 1; i--)
         {
-            waveText.text = "All waves completed!";
-            yield break;
-        }
-
-        // 1. Duyuru: Wave başlıyor
-        waveText.text = $"Wave {currentWave + 1} is about to start!";
-        yield return new WaitForSeconds(2f);
-        waveText.text = "";
-
-        // 2. Geri sayım
-        for (int i = 5; i > 0; i--)
-        {
-            waveText.text = i.ToString();
+            waveMessageText.text = $"Wave {currentWave + 1} starts in: {i}";
             yield return new WaitForSeconds(1f);
         }
 
-        // 3. Savaş başlasın
-        waveText.text = "FIGHT!";
+        waveMessageText.text = "FIGHT!";
         yield return new WaitForSeconds(1f);
-        waveText.text = "";
+        waveMessageText.text = "";
 
-        // 4. Zombileri spawnla
+        // Zombileri spawnla
         int zombieCount = zombiesPerWave[currentWave];
         for (int i = 0; i < zombieCount; i++)
         {
-            Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+            Transform spawnPoint = zombieSpawnPoints[Random.Range(0, zombieSpawnPoints.Length)];
             GameObject zombie = Instantiate(zombiePrefab, spawnPoint.position, Quaternion.identity);
             aliveZombies.Add(zombie);
+
+            // Zombie'ye WaveManager referansı ver (eğer Enemy scripti varsa)
+            Enemy enemy = zombie.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.waveManager = this;
+            }
         }
 
+        // Boostları spawnla
+        if (boosterSpawner != null)
+            boosterSpawner.SpawnBoosters();
+
+        waveInProgress = true;
         currentWave++;
-        isWaveInProgress = false;
+    }
+
+    public void OnZombieKilled(GameObject zombie)
+    {
+        if (aliveZombies.Contains(zombie))
+        {
+            aliveZombies.Remove(zombie);
+        }
+        // Wave bitiş kontrolü burada da yapılabilir (güvenlik için)
+        if (waveInProgress && aliveZombies.Count == 0)
+        {
+            waveInProgress = false;
+            if (currentWave < zombiesPerWave.Length)
+            {
+                StartCoroutine(StartNextWave());
+            }
+            else
+            {
+                waveMessageText.text = "All waves completed!";
+            }
+        }
     }
 }

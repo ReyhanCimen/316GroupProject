@@ -57,12 +57,12 @@ public class EnemyAI : MonoBehaviour
         if (distance > stopDistance)
         {
             agent.SetDestination(player.position);
-            Debug.Log(gameObject.name + " is chasing player.");
+            // Debug.Log(gameObject.name + " is chasing player.");
         }
         else
         {
             agent.ResetPath();
-            Debug.Log(gameObject.name + " reached player, stopping.");
+            // Debug.Log(gameObject.name + " reached player, stopping.");
 
             // Düşman oyuncuya ulaştığında hasar verme
             if (Time.time >= nextAttackTime)
@@ -70,7 +70,7 @@ public class EnemyAI : MonoBehaviour
                 PlayerHealth ph = player.GetComponent<PlayerHealth>();
                 if (ph != null)
                 {
-                    Debug.Log(gameObject.name + " ATTACKING player, damage: " + damageAmount);
+                    // Debug.Log(gameObject.name + " ATTACKING player, damage: " + damageAmount);
  EnemySoundManager.PlayAttackSound();
                     ph.TakeDamage(damageAmount);
                    

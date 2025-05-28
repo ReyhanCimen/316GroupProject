@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerHealthBarManager : MonoBehaviour
 {
-    public GameObject healthBarPrefab;  // Player saðlýk çubuðu prefab'ý
-    public Transform uiContainer;      // Canvas referansý
+    public GameObject healthBarPrefab;  // Player saï¿½lï¿½k ï¿½ubuï¿½u prefab'ï¿½
+    public Transform uiContainer;      // Canvas referansï¿½
 
     private GameObject healthBarObj;
     private PlayerHealth playerHealthScript;
@@ -17,18 +17,18 @@ public class PlayerHealthBarManager : MonoBehaviour
 
         if (playerHealthScript == null)
         {
-            Debug.LogError("PlayerHealth script bulunamadý!");
+            Debug.LogError("PlayerHealth script bulunamadï¿½!");
             return;
         }
 
-        // Health Bar prefab'ýný kontrol et
+        // Health Bar prefab'ï¿½nï¿½ kontrol et
         if (healthBarPrefab == null)
         {
-            Debug.LogError("Health Bar prefab atanmamýþ!");
+            Debug.LogError("Health Bar prefab atanmamï¿½ï¿½!");
             return;
         }
 
-        // UI Container yoksa, ana Canvas'ý bul
+        // UI Container yoksa, ana Canvas'ï¿½ bul
         if (uiContainer == null)
         {
             Canvas mainCanvas = FindObjectOfType<Canvas>();
@@ -38,27 +38,27 @@ public class PlayerHealthBarManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError("UI Container veya Canvas bulunamadý!");
+                Debug.LogError("UI Container veya Canvas bulunamadï¿½!");
                 return;
             }
         }
 
-        // Health Bar prefab'ýný instantiate et
+        // Health Bar prefab'ï¿½nï¿½ instantiate et
         healthBarObj = Instantiate(healthBarPrefab, uiContainer);
         healthBarObj.tag = "PlayerUI";
 
-        // Health Bar bileþenlerini bul
+        // Health Bar bileï¿½enlerini bul
         healthBar healthBarScript = healthBarObj.GetComponent<healthBar>();
         if (healthBarScript != null)
         {
             // Owner tipini oyuncu olarak ayarla
             healthBarScript.ownerType = healthBar.OwnerType.Player;
 
-            // Health Bar deðerlerini ayarla
+            // Health Bar deï¿½erlerini ayarla
             healthBarScript.maxHealth = playerHealthScript.maxHealth;
             healthBarScript.health = playerHealthScript.maxHealth;
 
-            // Slider deðerlerini manuel olarak baþlangýçta ayarla
+            // Slider deï¿½erlerini manuel olarak baï¿½langï¿½ï¿½ta ayarla
             if (healthBarScript.healthSlider != null)
             {
                 healthBarScript.healthSlider.maxValue = playerHealthScript.maxHealth;
@@ -71,14 +71,14 @@ public class PlayerHealthBarManager : MonoBehaviour
                 healthBarScript.easeHealthSlider.value = playerHealthScript.maxHealth;
             }
 
-            // PlayerHealth scriptine Health Bar referansýný ata
+            // PlayerHealth scriptine Health Bar referansï¿½nï¿½ ata
             playerHealthScript.healthBarUI = healthBarScript;
 
-            Debug.Log("Player Health Bar baþarýyla oluþturuldu ve ayarlandý!");
+            Debug.Log("Player Health Bar baï¿½arï¿½yla oluï¿½turuldu ve ayarlandï¿½!");
         }
         else
         {
-            Debug.LogError("Health Bar script bulunamadý!");
+            Debug.LogError("Health Bar script bulunamadï¿½!");
         }
     }
 }

@@ -7,29 +7,29 @@ public class BoosterManager : MonoBehaviour
     public Gun gun;                 // Gun scriptine referans
 
     [Header("Ammo Boost Settings")]
-    public float fireRateDecreaseMin = 0.02f;   // Ate� h�z�ndaki minimum azalma (daha h�zl� ate�)
-    public float fireRateDecreaseMax = 0.05f;   // Ate� h�z�ndaki maksimum azalma
-    public int magazineIncreaseMin = 3;         // �arj�r kapasitesindeki minimum art��
-    public int magazineIncreaseMax = 7;         // �arj�r kapasitesindeki maksimum art��
-    public int totalAmmoIncreaseMin = 15;       // Toplam mermi say�s�ndaki minimum art��
-    public int totalAmmoIncreaseMax = 30;       // Toplam mermi say�s�ndaki maksimum art��
+    public float fireRateDecreaseMin = 0.02f;   // Ateş hızındaki minimum azalma (daha hızlı ateş)
+    public float fireRateDecreaseMax = 0.05f;   // Ateş hızındaki maksimum azalma
+    public int magazineIncreaseMin = 3;         // Şarjör kapasitesindeki minimum artış
+    public int magazineIncreaseMax = 7;         // Şarjör kapasitesindeki maksimum artış
+    public int totalAmmoIncreaseMin = 15;       // Toplam mermi sayısındaki minimum artış
+    public int totalAmmoIncreaseMax = 30;       // Toplam mermi sayısındaki maksimum artış
 
     void Start()
     {
-        // Referanslar� otomatik olarak almaya �al��al�m (e�er atanmam��sa)
+        // Referansları otomatik olarak almaya çalışalım (eğer atanmamışsa)
         if (playerHealth == null)
         {
             // BoosterManager genellikle Player objesine eklenir.
             playerHealth = GetComponent<PlayerHealth>();
             if (playerHealth == null)
             {
-                Debug.LogError("BoosterManager: PlayerHealth script'i bu obje �zerinde bulunamad�!");
+                Debug.LogError("BoosterManager: PlayerHealth script'i bu obje üzerinde bulunamadı!");
             }
         }
 
         if (gun == null)
         {
-            // Gun scripti genellikle Player objesinin bir child'�nda (silah objesi) olur.
+            // Gun scripti genellikle Player objesinin bir child'ında (silah objesi) olur.
             // Veya Player objesinin kendisinde de olabilir.
             gun = GetComponentInChildren<Gun>();
             if (gun == null)
@@ -38,8 +38,8 @@ public class BoosterManager : MonoBehaviour
             }
             if (gun == null)
             {
-                // E�er Player'�n kendisinde veya child'�nda de�ilse, sahnede bulmay� deneyebiliriz.
-                // Ancak bu genellikle iyi bir pratik de�ildir, do�rudan referans daha iyidir.
+                // Eğer Player'ın kendisinde veya child'ında değilse, sahnede bulmayı deneyebiliriz.
+                // Ancak bu genellikle iyi bir pratik değildir, doğrudan referans daha iyidir.
                 GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
                 if (playerObject != null)
                 {
@@ -49,7 +49,7 @@ public class BoosterManager : MonoBehaviour
 
                 if (gun == null)
                 {
-                    Debug.LogError("BoosterManager: Gun script'i Player objesinde veya child'lar�nda bulunamad�!");
+                    Debug.LogError("BoosterManager: Gun script'i Player objesinde veya child'larında bulunamadı!");
                 }
             }
         }
@@ -71,13 +71,13 @@ public class BoosterManager : MonoBehaviour
     {
         if (playerHealth != null)
         {
-            playerHealth.HealToFull(); // PlayerHealth'teki yeni metodu �a��r
-            Debug.Log("Health Boost al�nd�! Can tamamen dolduruldu.");
+            playerHealth.HealToFull(); // PlayerHealth'teki yeni metodu çağır
+            Debug.Log("Health Boost alındı! Can tamamen dolduruldu.");
             Destroy(boosterObject); // Boost objesini yok et
         }
         else
         {
-            Debug.LogWarning("Health Boost al�nd� ama PlayerHealth referans� yok!");
+            Debug.LogWarning("Health Boost alındı ama PlayerHealth referansı yok!");
         }
     }
 
@@ -89,33 +89,31 @@ public class BoosterManager : MonoBehaviour
 
             switch (boostType)
             {
-                case 0: // Fire Rate Art��� (fireRate de�erini d���rerek)
+                case 0: // Fire Rate Artışı (fireRate değerini düşürerek)
                     float fireRateDecrease = Random.Range(fireRateDecreaseMin, fireRateDecreaseMax);
                     gun.fireRate = Mathf.Max(0.05f, gun.fireRate - fireRateDecrease); // Minimum 0.05f olsun
-                    Debug.Log($"Ammo Boost: Ate� h�z� artt�! Yeni fire rate: {gun.fireRate}");
+                    Debug.Log($"Ammo Boost: Ateş hızı arttı! Yeni fire rate: {gun.fireRate}");
                     break;
-                case 1: // �arj�r Kapasitesi Art���
-                    int magIncrease = Random.Range(magazineIncreaseMin, magazineIncreaseMax);
+                case 1: // Şarjör Kapasitesi Artışı (sadece kapasiteyi artır, mevcut şarjör mermisini değiştirme)
+                    int magIncrease = Random.Range(magazineIncreaseMin, magazineIncreaseMax + 1);
                     gun.magazineSize += magIncrease;
-                    // �ste�e ba�l�: Mevcut �arj�re de mermi eklenebilir
-                    // gun.AddAmmoToMagazine(magIncrease); // E�er �arj�re de eklemek istersen
-                    Debug.Log($"Ammo Boost: �arj�r kapasitesi artt�! Yeni kapasite: {gun.magazineSize}");
+                    Debug.Log($"Ammo Boost: Şarjör kapasitesi arttı! Yeni kapasite: {gun.magazineSize} (+{magIncrease})");
                     break;
-                case 2: // Toplam Mermi Art���
-                    int ammoIncrease = Random.Range(totalAmmoIncreaseMin, totalAmmoIncreaseMax);
+                case 2: // Toplam Mermi Artışı (direkt sağa ekle)
+                    int ammoIncrease = Random.Range(totalAmmoIncreaseMin, totalAmmoIncreaseMax + 1);
                     gun.totalAmmo += ammoIncrease;
-                    Debug.Log($"Ammo Boost: Toplam mermi artt�! Yeni toplam mermi: {gun.totalAmmo}");
+                    Debug.Log($"Ammo Boost: Toplam mermi arttı! Yeni toplam mermi: {gun.totalAmmo} (+{ammoIncrease})");
                     break;
             }
 
-            // Mermi UI'�n� g�ncellemek i�in Gun scriptindeki metodu �a��r
+            // Mermi UI'sını güncellemek için Gun scriptindeki metodu çağır
             gun.NotifyAmmoStatsChanged();
 
             Destroy(boosterObject); // Boost objesini yok et
         }
         else
         {
-            Debug.LogWarning("Ammo Boost al�nd� ama Gun referans� yok!");
+            Debug.LogWarning("Ammo Boost alındı ama Gun referansı yok!");
         }
     }
 }
