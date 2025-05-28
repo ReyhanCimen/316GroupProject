@@ -4,14 +4,14 @@ using TMPro;
 
 public class AmmoDisplay : MonoBehaviour
 {
-    public TMP_Text ammoText; // Normal Text yerine TMP_Text kullanýn
+    public TMP_Text ammoText; // Normal Text yerine TMP_Text kullanï¿½n
 
     [Header("Gun Reference")]
-    public Gun gunScript; // Silah script'i referansý
+    public Gun gunScript; // Silah script'i referansï¿½
 
     private void Start()
     {
-        // Eðer referans atanmamýþsa, kendini referans olarak ata
+        // Eï¿½er referans atanmamï¿½ï¿½sa, kendini referans olarak ata
         if (ammoText == null)
         {
             ammoText = GetComponent<TMP_Text>();
@@ -25,13 +25,13 @@ public class AmmoDisplay : MonoBehaviour
             Debug.Log("Gun script found: " + (gunScript != null));
         }
 
-        // Baþlangýçta mermi sayýsýný güncelle
+        // Baï¿½langï¿½ï¿½ta mermi sayï¿½sï¿½nï¿½ gï¿½ncelle
         UpdateAmmoText();
     }
 
     private void Update()
     {
-        // Her frame mermi sayýsýný güncelle
+        // Her frame mermi sayï¿½sï¿½nï¿½ gï¿½ncelle
         UpdateAmmoText();
     }
 
@@ -39,7 +39,7 @@ public class AmmoDisplay : MonoBehaviour
     {
         if (gunScript != null && ammoText != null)
         {
-            ammoText.text = gunScript.currentAmmo + "/" + gunScript.magazineSize;
+            ammoText.text = gunScript.currentAmmo + "/" + gunScript.totalAmmo;
             Debug.Log("Ammo text updated: " + ammoText.text);
         }
     }
@@ -47,7 +47,7 @@ public class AmmoDisplay : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Event aboneliðini kaldýr (hafýza sýzýntýsýný önlemek için)
+        // Event aboneliï¿½ini kaldï¿½r (hafï¿½za sï¿½zï¿½ntï¿½sï¿½nï¿½ ï¿½nlemek iï¿½in)
         if (gunScript != null)
         {
             gunScript.onAmmoChanged -= UpdateAmmoUI;
