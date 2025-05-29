@@ -5,7 +5,11 @@ public class EnemyAnimationManager : MonoBehaviour
     [Header("Visuals")]
     public Sprite idleSprite;
     public RuntimeAnimatorController hitAnimatorController;
-    public Sprite deadSprite; // Yeni: Ölüm sprite'ı
+    public Sprite deadSprite;
+
+    [Header("Attack Animation")]
+    public RuntimeAnimatorController attackAnimatorController;
+    public float attackAnimLength = 0.5f; // Set this to your attack animation length
 
     [Header("Scale Animation")]
     public Vector3 hitScale = new Vector3(1.2f, 1.2f, 1f);
@@ -18,6 +22,9 @@ public class EnemyAnimationManager : MonoBehaviour
     private bool isHit = false;
     private float hitAnimLength = 0f;
     private float hitTimer = 0f;
+
+    private bool isAttacking = false;
+    private float attackTimer = 0f;
 
     void Start()
     {
@@ -37,6 +44,14 @@ public class EnemyAnimationManager : MonoBehaviour
             if (clips.Length > 0)
                 hitAnimLength = clips[0].length;
         }
+
+        // Get attack animation length if controller is set
+        if (attackAnimatorController != null)
+        {
+            AnimationClip[] attackClips = attackAnimatorController.animationClips;
+            if (attackClips.Length > 0)
+                attackAnimLength = attackClips[0].length;
+        }
     }
 
     void Update()
@@ -50,6 +65,15 @@ public class EnemyAnimationManager : MonoBehaviour
         {
             hitTimer += Time.deltaTime;
             if (hitTimer >= hitAnimLength)
+            {
+                ResetToIdle();
+            }
+        }
+
+        if (isAttacking)
+        {
+            attackTimer += Time.deltaTime;
+            if (attackTimer >= attackAnimLength)
             {
                 ResetToIdle();
             }
@@ -79,6 +103,23 @@ public class EnemyAnimationManager : MonoBehaviour
         transform.localScale = hitScale;
     }
 
+    public void PlayAttackAnimation()
+    {
+        if (animator == null || attackAnimatorController == null)
+            return;
+
+        isAttacking = true;
+        attackTimer = 0f;
+
+        animator.runtimeAnimatorController = attackAnimatorController;
+        animator.enabled = true;
+        animator.Play("Attack", 0, 0f); // animasyonu sıfırdan başlat
+
+        // İsterseniz scale efektini de ekleyebilirsiniz, ör: transform.localScale = hitScale;
+        // Ancak hit ile aynı davranış isteniyorsa:
+        transform.localScale = hitScale;
+    }
+
     public void PlayDeadAnimation()
     {
         // Ölüm animasyonu: sprite'ı deadSprite yap, scale sıfırla, animator'ı kapat
@@ -100,7 +141,9 @@ public class EnemyAnimationManager : MonoBehaviour
             return;
 
         isHit = false;
+        isAttacking = false;
         hitTimer = 0f;
+        attackTimer = 0f;
 
         if (animator != null)
             animator.enabled = false;
