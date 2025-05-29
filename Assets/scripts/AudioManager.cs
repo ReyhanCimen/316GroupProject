@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class AudioManager : MonoBehaviour
@@ -9,17 +10,36 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource SFXSource;
 
     public AudioClip background;
-    //bg music
-    private void Start()
-    {
-        musicSource.clip = background;
-        musicSource.Play();
-    }
-
 
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void Start()
+    {
+        PlayBackgroundMusic();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        PlayBackgroundMusic();
+    }
+
+    private void PlayBackgroundMusic()
+    {
+        if (musicSource != null && background != null)
+        {
+            musicSource.Stop();
+            musicSource.clip = background;
+            musicSource.Play();
+        }
     }
 
     /* 
@@ -98,7 +118,7 @@ public class AudioManager : MonoBehaviour
          }
          else
          {
-             Debug.LogWarning("EnemySoundManager: Ses klibi atanmadý.");
+             Debug.LogWarning("EnemySoundManager: Ses klibi atanmadï¿½.");
          }
      }*/
 }

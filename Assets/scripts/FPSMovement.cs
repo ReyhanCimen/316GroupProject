@@ -7,7 +7,7 @@ public class FPSMovement : MonoBehaviour
     public float runSpeed = 8f;
     public float jumpHeight = 1.2f;
     public float gravity = -9.81f;
-    
+
     [Header("Mouse Settings")]
     public Transform playerCamera;
     public float mouseSensitivity = 100f;
@@ -100,5 +100,15 @@ public class FPSMovement : MonoBehaviour
 
         playerCamera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
+    }
+
+    // Bu fonksiyonu PauseMenu veya başka bir yerden çağırabilirsiniz
+    public void Resume()
+    {
+        LockCursor(true); // Resume olduğunda cursor gizlensin ve kilitlensin
+    }
+    public void Pause()
+    {
+        LockCursor(false); // Pause olduğunda cursor gösterilsin
     }
 }

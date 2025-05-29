@@ -6,9 +6,14 @@ public class PauseMenu : MonoBehaviour
 {
     public static bool GamePaused = false;
     public GameObject pauseMenu;
+    public FPSMovement FPSMovement;
 
     private bool isPaused = false;
 
+    void Start()
+    {
+        Resume(); // Start the game in a non-paused state
+    }
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -30,6 +35,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenu.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;
+        FPSMovement.Resume();
    
     }
 
@@ -39,6 +45,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
+        FPSMovement.Pause();
     }
 
 }
