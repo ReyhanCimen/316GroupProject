@@ -11,6 +11,12 @@ public class WaveManager : MonoBehaviour
     public GameObject zombiePrefab;
     public Text waveMessageText; // Legacy UI.Text
 
+
+    [Header("UI Panels")]
+    public GameObject winPanel;
+
+
+
     [Header("References")]
     public BoosterSpawner boosterSpawner;
 
@@ -36,7 +42,12 @@ public class WaveManager : MonoBehaviour
             else
             {
                 waveMessageText.text = "All waves completed!";
+                if (winPanel != null)
+                    winPanel.SetActive(true);
+                else
+                    Debug.LogWarning("Win Panel atanmadı!");
             }
+
         }
     }
 
@@ -96,7 +107,12 @@ public class WaveManager : MonoBehaviour
             else
             {
                 waveMessageText.text = "All waves completed!";
+                if (winPanel != null)
+                    winPanel.SetActive(true);
+                else
+                    Debug.LogWarning("Win Panel atanmadı!");
             }
+
         }
     }
 }

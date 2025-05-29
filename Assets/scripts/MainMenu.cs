@@ -12,10 +12,12 @@ public void PlayGame()
     public void BackMenu()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        Time.timeScale = 0f;
     }
 
     public void QuitGame()
     {
+        Time.timeScale = 0f;
         Application.Quit();
     }
 }

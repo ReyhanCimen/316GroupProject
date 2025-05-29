@@ -5,6 +5,7 @@ public class PlayerHealth : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
     public healthBar healthBarUI;
+    public GameObject losePanel;
 
     private bool isInitialized = false;
     private bool isDead = false;
@@ -157,8 +158,17 @@ public class PlayerHealth : MonoBehaviour
         isDead = true;
         Debug.Log("Player died!");
 
-        // Ölüm efektleri, oyun durma vs. burada eklenebilir
+        if (losePanel != null)
+        {
+            losePanel.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("Lose Panel referansı atanmadı!");
+        }
+        Time.timeScale = 0f;
     }
+
 
     // Test tuşları
     void Update()
