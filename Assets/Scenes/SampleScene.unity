@@ -350,7 +350,7 @@ GameObject:
   m_Component:
   - component: {fileID: 88579492}
   m_Layer: 0
-  m_Name: spawnpoint (6)
+  m_Name: ammo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1046,7 +1046,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 965de6d328e4aa44ca29688aa90c4eaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zombiesPerWave: 0a0000000f000000140000001900000032000000
+  zombiesPerWave: 0000000000000000000000000000000000000000
   zombieSpawnPoints:
   - {fileID: 776491477}
   - {fileID: 208298652}
@@ -1233,7 +1233,7 @@ GameObject:
   m_Component:
   - component: {fileID: 330529741}
   m_Layer: 0
-  m_Name: spawnpoint (2)
+  m_Name: ammo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1414,7 +1414,7 @@ GameObject:
   m_Component:
   - component: {fileID: 438233672}
   m_Layer: 0
-  m_Name: spawnpoint
+  m_Name: ammo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1507,7 +1507,7 @@ GameObject:
   m_Component:
   - component: {fileID: 458662546}
   m_Layer: 0
-  m_Name: spawnpoint (4)
+  m_Name: ammo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2064,7 +2064,7 @@ GameObject:
   m_Component:
   - component: {fileID: 706757039}
   m_Layer: 0
-  m_Name: spawnpoint (3)
+  m_Name: health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2560,7 +2560,7 @@ GameObject:
   m_Component:
   - component: {fileID: 867007463}
   m_Layer: 0
-  m_Name: spawnpoint (8)
+  m_Name: ammo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2591,7 +2591,7 @@ GameObject:
   m_Component:
   - component: {fileID: 879920243}
   m_Layer: 0
-  m_Name: spawnpoint (1)
+  m_Name: health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3178,7 +3178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1140626244}
   m_Layer: 0
-  m_Name: spawnpoint (5)
+  m_Name: health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3209,7 +3209,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1201679292}
   m_Layer: 0
-  m_Name: spawnpoint (9)
+  m_Name: health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4109,7 +4109,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1577843117
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5057,6 +5057,8 @@ MonoBehaviour:
   playerCamera: {fileID: 1104155344}
   mouseSensitivity: 100
   invertY: 0
+  winScreen: {fileID: 1577843116}
+  loseScreen: {fileID: 214625294}
 --- !u!4 &1915144709 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 596320882098841969, guid: acab7c45ab8091b49b124b7475accc8c,
@@ -5148,16 +5150,17 @@ MonoBehaviour:
     type: 3}
   ammoBoostPrefab: {fileID: 3891654530495462300, guid: 2b05a9f33f15a7447b5a1ea3d0ad86d4,
     type: 3}
-  spawnPoints:
+  ammoBoostSpawnPoints:
   - {fileID: 438233672}
-  - {fileID: 879920243}
   - {fileID: 330529741}
-  - {fileID: 706757039}
   - {fileID: 458662546}
-  - {fileID: 1140626244}
   - {fileID: 88579492}
-  - {fileID: 1954064355}
   - {fileID: 867007463}
+  healthBoostSpawnPoints:
+  - {fileID: 879920243}
+  - {fileID: 706757039}
+  - {fileID: 1140626244}
+  - {fileID: 1954064355}
   - {fileID: 1201679292}
 --- !u!1 &1936735833
 GameObject:
@@ -5200,7 +5203,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1954064355}
   m_Layer: 0
-  m_Name: spawnpoint (7)
+  m_Name: health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

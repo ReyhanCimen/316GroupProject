@@ -21,7 +21,7 @@ public class Gun : MonoBehaviour
     public event AmmoChangedHandler onAmmoChanged;
 
     // Public değişkene çevirdik (UI erişimi için)
-    public int currentAmmo { get; private set; }
+    public int currentAmmo { get; set; }
     private float nextTimeToFire = 0f;
 
     void Start()

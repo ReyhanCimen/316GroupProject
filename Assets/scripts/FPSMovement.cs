@@ -13,6 +13,10 @@ public class FPSMovement : MonoBehaviour
     public float mouseSensitivity = 100f;
     public bool invertY = false;
 
+    [Header("UI Panels")]
+    public GameObject winScreen;
+    public GameObject loseScreen;
+
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
@@ -21,13 +25,41 @@ public class FPSMovement : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        //Cursor.lockState = CursorLockMode.Locked; // İmleç gizli ve merkezde
+        LockCursor(true); // Oyun başında cursor kilitli ve gizli
     }
 
     void Update()
     {
         HandleMovement();
         HandleMouseLook();
+
+        // Win/Lose ekranı açıksa cursor göster
+        if ((winScreen != null && winScreen.activeSelf) || (loseScreen != null && loseScreen.activeSelf))
+        {
+            LockCursor(false);
+            return;
+        }
+
+        // Panel açma/kapatma: Escape ile cursor göster/gizle
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            bool shouldLock = Cursor.lockState != CursorLockMode.Locked;
+            LockCursor(shouldLock);
+        }
+    }
+
+    void LockCursor(bool locked)
+    {
+        if (locked)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     void HandleMovement()

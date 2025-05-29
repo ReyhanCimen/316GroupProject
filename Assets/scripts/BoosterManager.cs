@@ -85,31 +85,17 @@ public class BoosterManager : MonoBehaviour
     {
         if (gun != null)
         {
-            int boostType = Random.Range(0, 3); // 0: Fire Rate, 1: Magazine Size, 2: Total Ammo
+            // Sadece totalAmmo'ya +25 ekle (her zaman)
+            gun.totalAmmo += 25;
+            Debug.Log($"Ammo Boost: Toplam mermi arttı! Yeni toplam mermi: {gun.totalAmmo} (+25)");
 
-            switch (boostType)
-            {
-                case 0: // Fire Rate Artışı (fireRate değerini düşürerek)
-                    float fireRateDecrease = Random.Range(fireRateDecreaseMin, fireRateDecreaseMax);
-                    gun.fireRate = Mathf.Max(0.05f, gun.fireRate - fireRateDecrease); // Minimum 0.05f olsun
-                    Debug.Log($"Ammo Boost: Ateş hızı arttı! Yeni fire rate: {gun.fireRate}");
-                    break;
-                case 1: // Şarjör Kapasitesi Artışı (sadece kapasiteyi artır, mevcut şarjör mermisini değiştirme)
-                    int magIncrease = Random.Range(magazineIncreaseMin, magazineIncreaseMax + 1);
-                    gun.magazineSize += magIncrease;
-                    Debug.Log($"Ammo Boost: Şarjör kapasitesi arttı! Yeni kapasite: {gun.magazineSize} (+{magIncrease})");
-                    break;
-                case 2: // Toplam Mermi Artışı (direkt sağa ekle)
-                    int ammoIncrease = Random.Range(totalAmmoIncreaseMin, totalAmmoIncreaseMax + 1);
-                    gun.totalAmmo += ammoIncrease;
-                    Debug.Log($"Ammo Boost: Toplam mermi arttı! Yeni toplam mermi: {gun.totalAmmo} (+{ammoIncrease})");
-                    break;
-            }
+            gun.magazineSize = 10;
+            // currentAmmo ve diğer değerleri değiştirme, sadece totalAmmo clamp'le
+            gun.totalAmmo = Mathf.Max(0, gun.totalAmmo);
 
-            // Mermi UI'sını güncellemek için Gun scriptindeki metodu çağır
             gun.NotifyAmmoStatsChanged();
 
-            Destroy(boosterObject); // Boost objesini yok et
+            Destroy(boosterObject);
         }
         else
         {
