@@ -21,7 +21,7 @@ public class FPSMovement : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        Cursor.lockState = CursorLockMode.Locked; // İmleç gizli ve merkezde
+        //Cursor.lockState = CursorLockMode.Locked; // İmleç gizli ve merkezde
     }
 
     void Update()
