@@ -33,10 +33,6 @@ Game mechanic
 Waves & Levels
 Five waves, if player defeats all enemies and survives, player wins.
 If player does not survive all five waves, player loses.
+![WhatsApp Görsel 2025-05-29 saat 16 32 24_6f1c5599](https://github.com/user-attachments/assets/84d93eb6-979b-4051-8121-2d73f3692d8b)
 
 
-In Game SS (Add relevant screenshots)
-
-Project Structure (Add graphs)
-
-Project Hierarchy (Add code screenshot)
