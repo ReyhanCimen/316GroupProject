@@ -33,6 +33,21 @@ Game mechanic
 Waves & Levels
 Five waves, if player defeats all enemies and survives, player wins.
 If player does not survive all five waves, player loses.
+
+Screenshots from the game
+Main Menu
+![IMG-20250529-WA0014](https://github.com/user-attachments/assets/0fb0ba21-fcfa-4829-8488-fd9b69eae21b)
+
+Settings
+![IMG-20250529-WA0012](https://github.com/user-attachments/assets/aa9b6774-792e-447f-8888-de9b36dc3f07)
+
+
+From Arena
 ![WhatsApp Görsel 2025-05-29 saat 16 32 24_6f1c5599](https://github.com/user-attachments/assets/84d93eb6-979b-4051-8121-2d73f3692d8b)
+
+Boosters
+![WhatsApp Görsel 2025-05-29 saat 16 51 02_10e5f852](https://github.com/user-attachments/assets/e30a77e1-3f76-412e-b02b-6da7f5dd4b45)
+![WhatsApp Görsel 2025-05-29 saat 16 32 25_aa5e04d1](https://github.com/user-attachments/assets/ec1718d8-8d70-44e0-99f0-2da7e14af6e4)
+
 
 
